@@ -21,8 +21,6 @@ using namespace std;
 //------------------------------------------------------------ Constants
 const signed int RESEND_NB(2);
 
-const Packet IDLE(Packet(255, {0}));
-
 //--------------------------------------------------------------- PUBLIC
 
 //------------------------------------------------------ Public methodes
@@ -43,6 +41,7 @@ bool DataToSend::unstack()
 
     if (bitToSend == -1)
     {
+        cout << "\r" << endl;
         Packet currentPacket = packets.front();
         packets.pop();
 
