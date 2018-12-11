@@ -17,6 +17,8 @@
 using namespace std;
 
 //------------------------------------------------------------ Constants
+extern const timestamp_t BIT0DURATION;
+extern const timestamp_t BIT1DURATION;
 
 //----------------------------------------------------------------------
 // <Clock> class role
@@ -47,12 +49,18 @@ public:
     // get the next value of 'state' variable by looking to the queue of
     // the class 'DataToSend'
     
+    Ticker& getFlipper();
+    
+    timestamp_t getBitDuration();
+    
+    void setBitDuration(timestamp_t time);
+    
 //------------------------------------------- Constructors - destructors
     Clock(const Clock &aClock);
     // Mode d'emploi (constructeur de copie) :
     // Cette méthode est juste déclarée
 
-    Clock(DataToSend &aDataToSend);
+    Clock(DataToSend *aDataToSend);
     //Constructeur de la classe Clock
 
     virtual ~Clock();
@@ -66,11 +74,11 @@ protected:
 //------------------------------------------------- Protected attributes
     bool output;
     bool state;
-    int bitDuration;
+    timestamp_t bitDuration;
     int transitionNb;
-    DataToSend dataToSend;
+    DataToSend *dataToSend;
     Ticker flipper;
-    DigitalOut dccOut(LED1);
+    DigitalOut dccOut;
 };
 
 #endif // Clock_H

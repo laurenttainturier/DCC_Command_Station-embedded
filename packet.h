@@ -5,21 +5,27 @@
     copyright            : (C) 2018 par laurent TAINTURIER
     e-mail               : laurent.tainturier@insa-lyon.fr
 *************************************************************************/
-//---------- Interface de la classe <Packet> (fichier Packet.h) ----------------
+//------- Interface de la classe <Packet> (fichier Packet.h) -------------
 #ifndef DCC_COMMAND_STATION_PACKET_H
 #define DCC_COMMAND_STATION_PACKET_H
 
 //--------------------------------------------------- Interfaces utilisées
 #include <iostream>
-#include <bitset>
 #include <string>
+#include <bitset>
 #include <vector>
 
 using namespace std;
 
 //------------------------------------------------------------- Constantes
+const signed int PREAMBLE_VALUE(32767);
 const signed int BYTE_LENGTH(8);
 const signed int PREAMBLE_LENGTH(14);
+const signed int PACKET_LENGTH(38);
+const signed int PREAMBLE_BIT_NB(34);
+const signed int ADDRESS_BIT_NB(17);
+const signed int COMMAND_BIT_NB(8);
+const signed int CONTROL_BIT_NB(0);
 
 //------------------------------------------------------------------ Types
 
@@ -42,6 +48,8 @@ public:
     int getAddress();
 
     string getBits();
+    
+    void createPacket();
 
     void toString();
 
@@ -51,7 +59,9 @@ public:
 //-------------------------------------------- Constructeurs - destructeur
     Packet(const Packet &unPacket);
 
-    Packet(short signed int address, vector<short signed int> command);
+    Packet(short signed int address, short signed int command);
+    
+    Packet();
 
     virtual ~Packet();
 
@@ -62,7 +72,7 @@ protected:
     signed int index;
     bitset<PREAMBLE_LENGTH> preamble;
     bitset<BYTE_LENGTH> address;
-    vector<bitset<BYTE_LENGTH>> command;
+    bitset<BYTE_LENGTH> command;
     bitset<BYTE_LENGTH> control;
     string bits;
 };

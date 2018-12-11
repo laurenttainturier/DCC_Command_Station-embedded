@@ -5,7 +5,7 @@
     copyright            : (C) 2018 par laurent TAINTURIER
     e-mail               : laurent.tainturier@insa-lyon.fr
 *************************************************************************/
-//---------- Réalisation de la classe <Packet> (fichier Packet.cpp) ------------
+//------- Réalisation de la classe <Packet> (fichier Packet.cpp) ---------
 
 //---------------------------------------------------------------- INCLUDE
 
@@ -15,6 +15,7 @@
 #include <bitset>
 #include "packet.h"
 
+using namespace std;
 //------------------------------------------------------------- Constantes
 
 //----------------------------------------------------------------- PUBLIC
@@ -34,12 +35,44 @@ int Packet::getAddress()
     return (int)address.to_ulong();
 }
 
+void Packet::createPacket()
+{
+    bits = preamble.to_string<char, string::traits_type, string::allocator_type>();
+    bits.append("0");
+    bits.append(address.to_string<char, string::traits_type, string::allocator_type>());
+    bits.append("0");
+    bits.append(command.to_string<char, string::traits_type, string::allocator_type>());
+    bits.append("0");
+    bits.append(control.to_string<char, string::traits_type, string::allocator_type>());
+    bits.append("1");
+}
+
+string Packet::getBits()
+{
+    return bits;
+}
+
+void Packet::toString()
+{
+    cout << "address " << address << endl;
+    cout << "command " << command << endl;
+    cout << "control " << control << endl;
+    cout << "packet  " << bits << endl;
+}
+
 //------------------------------------------------- Surcharge d'opérateurs
 Packet &Packet::operator=(const Packet &unPacket)
 // Algorithme :
 //
 {
-} //----- Fin de operator =
+    this->index = unPacket.index;
+    this->preamble = unPacket.preamble;
+    this->address = unPacket.address;
+    this->control = unPacket.control,
+    this->bits = unPacket.bits;
+    
+    return *this;
+}
 
 //-------------------------------------------- Constructeurs - destructeur
 Packet::Packet(const Packet &unPacket)
@@ -56,22 +89,25 @@ Packet::Packet(const Packet &unPacket)
     this->bits = unPacket.bits;
 } //----- Fin de Packet (constructeur de copie)
 
-
-Packet::Packet(short signed int anAddress, vector<short signed int> aCommand): index(0)
+Packet::Packet() : index(0)
 {
-    preamble = bitset<PREAMBLE_LENGTH>(32767);
+    preamble = 32767;
+    address = bitset<BYTE_LENGTH>(255);
+    command = bitset<BYTE_LENGTH>(0);
+    control = bitset<BYTE_LENGTH>(address ^ command);
+    
+    createPacket();
+}
+
+Packet::Packet(short signed int anAddress, short signed int aCommand):
+    index(0)
+{
+    preamble = 32767;
     address = bitset<BYTE_LENGTH>(anAddress);
-    control = address;
-    bits = preamble.to_string() + "0" + address.to_string() + "0";
-
-    for (int i = 0; i < aCommand.size(); i++)
-    {
-        command.push_back(bitset<BYTE_LENGTH>(aCommand[i]));
-        bits += command[i].to_string() + "0";
-        control ^= aCommand[i];
-    }
-
-    bits += control.to_string() + "1";
+    command = bitset<BYTE_LENGTH>(aCommand);
+    control = bitset<BYTE_LENGTH>(address ^ command);
+    
+    createPacket();
 }
 
 Packet::~Packet()
@@ -83,19 +119,6 @@ Packet::~Packet()
 #endif
 }
 
-string Packet::getBits()
-{
-    return bits;
-}
-
-void Packet::toString()
-{
-    cout << "address " << address << endl;
-    for (int i=0; i<command.size(); i++)
-        cout << "command " << command[i] << endl;
-    cout << "control " << control << endl;
-    cout << "packet  " << bits << endl;
-}
 //----- Fin de ~Packet
 
 //------------------------------------------------------------------ PRIVE

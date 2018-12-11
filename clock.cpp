@@ -19,23 +19,25 @@ using namespace std;
 
 //------------------------------------------------------------ Constants
 // duration in micro seconds
-const signed int BIT0DURATION(57);
-const signed int BIT1DURATION(100);
+const timestamp_t BIT0DURATION(5700);
+const timestamp_t BIT1DURATION(1000);
 
 //--------------------------------------------------------------- PUBLIC
 
 //------------------------------------------------------ Public methodes 
 void Clock::oscillate()
 {
-    output = !output;
-    if (!transitionNb % 2)
+    dccOut = !dccOut; 
+    if (transitionNb % 2 == 0)
+    { 
         getNextStateValue();
+    }
     transitionNb++;
 }
 
 void Clock::getNextStateValue()
 {
-    bool new_state = dataToSend.unstack();
+    bool new_state = dataToSend->unstack();
     if (state != new_state)
     {
         state = new_state;
@@ -43,17 +45,41 @@ void Clock::getNextStateValue()
             bitDuration = BIT1DURATION;
         else
             bitDuration = BIT0DURATION;
-        flipper.attach(&oscillate, bitDuration);
-    }
+        flipper.attach_us(callback(this, &Clock::oscillate), bitDuration);
+    }    
+    cout << state << flush;
+}
+
+void Clock::start()
+{
+    dccOut = !dccOut;
+    cout << "start\r" << endl;
+    cout << bitDuration << "\r" << endl;
+    flipper.attach_us(callback(this, &Clock::oscillate), bitDuration);
+}
+
+Ticker& Clock::getFlipper()
+{
+    return flipper;
+}
+
+timestamp_t Clock::getBitDuration()
+{
+    return bitDuration;
+}
+
+void Clock::setBitDuration(timestamp_t time)
+{
+    bitDuration  = time;
 }
 
 //-------------------------------------------- Constructors - destructor
-Clock::Clock(DataToSend &aDataToSend) :
-        state(0), transitionNb(0), bitDuration(BIT0DURATION)
+Clock::Clock(DataToSend *aDataToSend) :
+        state(0), bitDuration(BIT1DURATION), transitionNb(0), dccOut(LED1)
 {
-#ifdef MAP
+
     cout << "Call to <Clock> constructor" << endl;
-#endif
+
     dataToSend = aDataToSend;
 }
 
@@ -62,12 +88,6 @@ Clock::~Clock()
 #ifdef MAP
     cout << "Call to <Clock> destructor" << endl;
 #endif
-}
-
-void Clock::start()
-{
-    output = !output;
-    flipper.attach(&oscillate, bitDuration);
 }
 
 //---------------------------------------------------------------- PRIVE

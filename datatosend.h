@@ -54,6 +54,7 @@ protected:
 //------------------------------------------------- Protected attributes
     queue<Packet> packets;
     map<int, int> remainingSending;
+    Packet IDLE;
 };
 
 #endif // DataToSend_H

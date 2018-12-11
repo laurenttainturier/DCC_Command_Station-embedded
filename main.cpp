@@ -1,24 +1,39 @@
 #include <iostream>
 #include <bitset>
+#include <vector>
 
-#include "packet.h"
 #include "datatosend.h"
+#include "packet.h"
+#include "clock.h"
+
+using namespace std;
+
+DigitalOut dout(LED1);
+DigitalIn userButton(USER_BUTTON);
 
 int main()
 {
-    Packet p = Packet(57, {145});
-    cout << p.getBits() << "\n" << endl;
+    cout << "\n\n====================== start =====================\r" << endl;
+
     DataToSend data = DataToSend();
-    data.stack(p);
-    for (int i=0; i<420; i++)
+    Clock c(&data);
+    
+    cout << "\rPress <Enter> to start the station\r" << endl;
+    while (userButton) {}
+    c.start();
+    
+    bool power = true;
+    string address, command;
+    
+    while(power)
     {
-        if (i%42 == 0)
-            cout << i << "\t";
-        cout << data.unstack();
-        if (i == 125)
-            data.stack(Packet(57, {234}));
-        if ((i+1)%42 == 0)
-            cout << endl;
+        getline(cin, address, ' ');
+        getline(cin, command);
+        
+        // cout << "addr: " << address << " com: " << command << "\r" << endl;
+        
+        Packet p4(atoi(address.c_str()), atoi(command.c_str()));
+        data.stack(p4);
     }
 
     return 0;
